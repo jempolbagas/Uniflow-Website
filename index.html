@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniFlow | Interactive Business Plan</title>
+    <!-- Chosen Palette: "Calm Harmony" - A warm neutral base (#FDFBF7) with slate and indigo accents for a professional, calm, and focused feel. -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive dashboard with a fixed sidebar for navigation. This structure was chosen over a linear, scrolling page to allow "investors" to jump to sections of interest (e.g., Monetization, Market) instantly, mirroring how a real investor might review a business plan. The main content area dynamically updates, presenting one section at a time. This non-linear, user-driven flow encourages exploration and makes the complex information easily digestible. Key interactions include tab-based navigation for features, a dynamic chart for monetization, and a clickable timeline for future plans. -->
+    <!-- Visualization & Content Choices:
+        - **Introduction (Inform):** Uses a conceptual HTML/CSS phone mockup to visually represent the app.
+        - **Problem Statement (Inform):** Presented as three distinct, icon-driven cards with expanded descriptions for quick comprehension of the core issues.
+        - **Target Audience (Inform/Organize):** A grid layout with clear headings and expanded text to segment the audience and detail their needs.
+        - **Solution Overview (Inform):** Uses a combination of a summary paragraph and three benefit-oriented pillars (Affordability, Sustainability, Trust) with expanded text to quickly convey the value proposition.
+        - **Key Features (Organize/Inform):** An interactive tabbed component. Users click on a feature category (e.g., "Core Functionality," "Trust & Safety") to reveal related features, each with a brief description. This avoids overwhelming the user with a long list and encourages active engagement.
+        - **Market Differentiation (Compare):** A detailed comparison table using a grid layout, now including a "General Marketplaces" column, to clearly distinguish UniFlow from its competitors on key aspects.
+        - **Monetization Strategy (Compare/Inform):** A dynamic Doughnut chart (Chart.js) visualizes the projected revenue mix, complemented by expanded textual descriptions for each revenue stream, explaining its sustainability.
+        - **Future Plans (Change/Organize):** An interactive, horizontal timeline built with HTML/CSS. Users can see the progression from Phase 1 to Phase 3, with more detailed descriptions for each phase presented clearly.
+        - **Call to Action (Persuade):** A dedicated closing section with a strong headline, concise summary of value, and clear contact information for investors.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FDFBF7;
+        }
+        .nav-item {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-item.active, .nav-item:hover {
+            background-color: #E0E7FF;
+            color: #3730A3;
+            transform: translateX(4px);
+        }
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .content-section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .feature-tab.active {
+            background-color: #4F46E5;
+            color: #FFFFFF;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 24px; /* Space for the circle */
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 12px; /* Adjust to vertically center with text */
+            left: -8px;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #FFFFFF;
+            border: 3px solid #6366F1;
+            transition: background-color 0.2s ease;
+        }
+        .timeline-item:hover::before {
+             background-color: #4F46E5;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px; /* Max width for charts */
+            height: 300px; /* Fixed height for charts on all screens */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px; /* Slightly taller on larger screens */
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-1/4 lg:w-1/5 bg-white/80 backdrop-blur-sm border-r border-slate-200 p-6 hidden md:flex flex-col">
+            <h1 class="text-3xl font-extrabold text-indigo-700 mb-10">UniFlow</h1>
+            <nav id="desktop-nav" class="flex flex-col space-y-2">
+                <a href="#introduction" class="nav-item text-slate-600 font-semibold p-3 rounded-lg active">Introduction</a>
+                <a href="#problem" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Problem Statement</a>
+                <a href="#solution" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Solution & Audience</a>
+                <a href="#features" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Key Features</a>
+                <a href="#differentiation" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Market Differentiation</a>
+                <a href="#monetization" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Monetization</a>
+                <a href="#roadmap" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Future Plans</a>
+                <a href="#call-to-action" class="nav-item text-slate-600 font-semibold p-3 rounded-lg">Call to Action</a>
+            </nav>
+            <div class="mt-auto text-xs text-slate-400">
+                <p>&copy; 2025 UniFlow Pitch</p>
+                <p>English II Group Project</p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="w-full md:w-3/4 lg:w-4/5 p-6 md:p-10 lg:p-12 overflow-y-auto">
+            
+            <!-- Mobile Navigation -->
+            <div class="md:hidden mb-6">
+                <select id="mobile-nav" class="w-full p-3 border border-slate-300 rounded-lg bg-white">
+                    <option value="introduction">Introduction</option>
+                    <option value="problem">Problem Statement</option>
+                    <option value="solution">Solution & Audience</option>
+                    <option value="features">Key Features</option>
+                    <option value="differentiation">Market Differentiation</option>
+                    <option value="monetization">Monetization</option>
+                    <option value="roadmap">Future Plans</option>
+                    <option value="call-to-action">Call to Action</option>
+                </select>
+            </div>
+
+            <!-- Introduction Section -->
+            <section id="introduction" class="content-section active">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-4">Your Campus Marketplace, Reimagined.</h2>
+                <p class="text-lg text-slate-600 mb-8">This interactive report outlines the business plan for UniFlow, a peer-to-peer marketplace designed exclusively for university students. Navigate through the sections using the sidebar or dropdown to explore the core concept, market strategy, and future vision. Our aim is to make campus life more affordable and sustainable for every student.</p>
+                <div class="p-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl text-white shadow-2xl relative overflow-hidden">
+                    <h3 class="text-2xl font-bold mb-4">The UniFlow Vision</h3>
+                    <p class="opacity-90 max-w-3xl mx-auto mb-8">UniFlow is a mobile application facilitating the buying, selling, and renting of various items—from essential textbooks and lab coats to furniture and even motorbikes—among students on the same campus. We are building a trusted, convenient, and localized platform to combat high student expenses and reduce waste from unused resources.</p>
+                    
+                    <!-- Conceptual Phone Mockup -->
+                    <div class="relative w-48 h-96 bg-gray-900 rounded-3xl shadow-xl mx-auto border-4 border-gray-700 flex items-center justify-center">
+                        <div class="absolute top-2 w-16 h-2 bg-gray-700 rounded-full"></div>
+                        <div class="absolute bottom-2 w-10 h-10 bg-gray-700 rounded-full"></div>
+                        <div class="text-white text-3xl font-bold">UniFlow</div>
+                        <div class="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-indigo-500 to-transparent"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Problem Statement Section -->
+            <section id="problem" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">The Challenge: A Student's Burden</h2>
+                <p class="text-lg text-slate-600 mb-8">UniFlow directly addresses three significant and interconnected problems that university students face daily, impacting their finances and the environment.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="p-6 bg-rose-50 border border-rose-200 rounded-xl">
+                        <span class="text-3xl mb-3 block">💸</span>
+                        <h3 class="text-xl font-bold text-rose-800 mb-2">Expensive Essentials</h3>
+                        <p class="text-rose-700">New textbooks, academic supplies, and dorm essentials (like mini-fridges or desks) quickly accumulate, placing immense financial pressure on students often operating on tight budgets. This burden can hinder academic focus and overall well-being.</p>
+                    </div>
+                    <div class="p-6 bg-amber-50 border border-amber-200 rounded-xl">
+                        <span class="text-3xl mb-3 block">♻️</span>
+                        <h3 class="text-xl font-bold text-amber-800 mb-2">Wasted Resources</h3>
+                        <p class="text-amber-700">Used items accumulate and are often discarded, representing a missed opportunity for reuse and sustainability within the community.</p>
+                    </div>
+                    <div class="p-6 bg-sky-50 border border-sky-200 rounded-xl">
+                        <span class="text-3xl mb-3 block">🤝</span>
+                        <h3 class="text-xl font-bold text-sky-800 mb-2">Lack of Trusted & Convenient Exchange</h3>
+                        <p class="text-sky-700">Existing general online marketplaces lack student-specific verification, leading to concerns about trust and safety. Furthermore, they are not localized to a specific campus, making logistics for pickups and deliveries cumbersome and inefficient for student-to-student transactions.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Solution & Audience Section -->
+            <section id="solution" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Our Solution & Target Audience</h2>
+                <p class="text-lg text-slate-600 mb-8">UniFlow provides a dedicated mobile platform that directly addresses these challenges for a well-defined and highly engaged user base: the campus community.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="p-6 bg-indigo-50 border border-indigo-200 rounded-xl">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-3">The UniFlow App: A Smart Exchange Ecosystem</h3>
+                        <p class="text-indigo-700 mb-4">UniFlow is a secure, user-friendly mobile application acting as a hyper-local peer-to-peer marketplace. It's built to simplify the exchange of goods and services exclusively among students on the same university campus. By facilitating these direct transactions, UniFlow creates a ripple effect of benefits:</p>
+                        <ul class="list-disc list-inside text-indigo-700 space-y-1">
+                            <li><strong class="text-lg font-bold text-indigo-700">Affordability:</strong> Offers significantly cheaper alternatives to new purchases.</li>
+                            <li><strong class="text-lg font-bold text-indigo-700">Sustainability:</strong> Promotes the reuse of items, reducing waste.</li>
+                            <li><strong class="text-lg font-bold text-indigo-700">Community Trust:</strong> Ensures safe transactions through student verification.</li>
+                            <li><strong class="text-lg font-bold text-indigo-700">Convenience:</strong> Streamlines logistics with location-based listings.</li>
+                        </ul>
+                    </div>
+                    <div class="p-6 bg-white border border-slate-200 rounded-xl">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-3">Our Target: The Vibrant Campus Community</h3>
+                        <p class="text-slate-600 mb-4">Our platform is designed to serve virtually every student on campus at some point during their academic journey, either as a buyer, a seller, or both. This includes:</p>
+                        <ul class="list-disc list-inside text-slate-600 space-y-1">
+                            <li><strong class="text-lg font-bold text-slate-700">University & College Students:</strong> The core demographic, representing over 8 million potential users across Indonesia.</li>
+                            <li><strong class="text-lg font-bold text-slate-700">Budget-Conscious Students:</strong> Actively seeking ways to save money on necessities.</li>
+                            <li><strong class="text-lg font-bold text-slate-700">Resourceful Students:</strong> Looking to monetize unused items or find specific niche items.</li>
+                            <li><strong class="text-lg font-bold text-slate-700">Students Seeking Convenience & Trust:</strong> Preferring to transact with verified peers in a safe, familiar environment.</li>
+                            <li><strong class="text-lg font-bold text-slate-700">Environmentally Aware Students:</strong> Appreciating the concept of reuse and reducing their ecological footprint.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Key Features Section -->
+            <section id="features" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Key Features: Designed for Students</h2>
+                <p class="text-lg text-slate-600 mb-8">UniFlow is packed with intuitive features built to enhance the student exchange experience. Click on a category to explore the functionalities.</p>
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <div class="lg:w-1/3">
+                        <div id="feature-tabs-container" class="flex lg:flex-col gap-2 p-2 bg-white border border-slate-200 rounded-xl shadow-sm">
+                            <button data-tab="core" class="feature-tab p-3 w-full text-left font-semibold rounded-lg bg-white border border-slate-200 active">⚙️ Core Functionality</button>
+                            <button data-tab="trust" class="feature-tab p-3 w-full text-left font-semibold rounded-lg bg-white border border-slate-200">🔒 Trust & Safety</button>
+                            <button data-tab="engagement" class="feature-tab p-3 w-full text-left font-semibold rounded-lg bg-white border border-slate-200">✨ User Engagement</button>
+                            <button data-tab="ai" class="feature-tab p-3 w-full text-left font-semibold rounded-lg bg-white border border-slate-200">🧠 AI Tools</button>
+                        </div>
+                    </div>
+                    <div class="lg:w-2/3">
+                        <div id="feature-content-container" class="p-6 bg-white border border-slate-200 rounded-xl min-h-[300px] shadow-md">
+                            <div id="core" class="feature-content active grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><h4 class="font-bold text-slate-800">📍 Location-Based Search</h4><p class="text-sm text-slate-600">Easily find items available right on your campus, simplifying meetups and logistics.</p></div>
+                                <div><h4 class="font-bold text-slate-800">📚 Diverse Categories</h4><p class="text-sm text-slate-600">Comprehensive listings including textbooks, lab coats, furniture, electronics, and even temporary room space.</p></div>
+                                <div><h4 class="font-bold text-slate-800">🚀 Intuitive Listing Process</h4><p class="text-sm text-slate-600">Quickly create listings with easy photo uploads, detailed descriptions, and flexible pricing options.</p></div>
+                                <div><h4 class="font-bold text-slate-800">💬 In-App Messaging</h4><p class="text-sm text-slate-600">Communicate directly and securely with buyers or sellers without sharing personal contact information.</p></div>
+                            </div>
+                            <div id="trust" class="feature-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><h4 class="font-bold text-slate-800">✅ Student Verification</h4><p class="text-sm text-slate-600">Mandatory verification via university email ensures you're always dealing with verified fellow students, building a trusted community.</p></div>
+                                <div><h4 class="font-bold text-slate-800">⭐ User Profiles & Ratings</h4><p class="text-sm text-slate-600">Each user has a profile displaying their verified status, ratings, and reviews, fostering accountability and confidence in transactions.</p></div>
+                                <div><h4 class="font-bold text-slate-800">🚨 Reporting & Moderation</h4><p class="text-sm text-slate-600">A robust system for reporting inappropriate listings or suspicious activity, ensuring a safe and positive environment for all users.</p></div>
+                            </div>
+                            <div id="engagement" class="feature-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><h4 class="font-bold text-slate-800">💌 Wishlist & Notifications</h4><p class="text-sm text-slate-600">Create a wishlist for items you need and receive instant push notifications when a matching item is listed on campus.</p></div>
+                                <div><h4 class="font-bold text-slate-800">🔍 Advanced Search & Filters</h4><p class="text-sm text-slate-600">Powerful search capabilities with detailed filters (category, price, condition, keyword) to help users quickly find exactly what they're looking for.</p></div>
+                            </div>
+                            <div id="ai" class="feature-content hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><h4 class="font-bold text-slate-800">✍️ Smart Listing Description Generator</h4><p class="text-sm text-slate-600">Leverages the Gemini API to automatically craft compelling and detailed descriptions for items from just a few keywords, saving time and improving listing quality.</p></div>
+                                <div><h4 class="font-bold text-slate-800">💡 Intelligent Recommendations (Future)</h4><p class="text-sm text-slate-600">Future integration for personalized item recommendations based on user browsing history and academic profile, enhancing discovery.</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Differentiation Section -->
+            <section id="differentiation" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Our Competitive Edge: Why UniFlow Stands Out</h2>
+                <p class="text-lg text-slate-600 mb-8">UniFlow is not just another marketplace; it's a tailored solution built specifically for the unique needs of the university community. Here's how we differentiate ourselves:</p>
+                <div class="grid grid-cols-3 gap-px bg-slate-200 border border-slate-200 rounded-xl overflow-hidden shadow-md">
+                    <div class="p-4 bg-slate-100 font-bold text-slate-700 text-left">Feature</div>
+                    <div class="p-4 bg-slate-100 font-bold text-slate-700 text-center">UniFlow</div>
+                    <div class="p-4 bg-slate-100 font-bold text-slate-700 text-center">General Marketplaces</div>
+
+                    <div class="p-4 bg-white text-left">User Verification</div>
+                    <div class="p-4 bg-white text-center"><span class="font-semibold text-indigo-700">Mandatory Student Verification</span></div>
+                    <div class="p-4 bg-white text-center">None / Optional</div>
+
+                    <div class="p-4 bg-slate-50 text-left">Audience & Listings</div>
+                    <div class="p-4 bg-slate-50 text-center"><span class="font-semibold text-indigo-700">Hyper-Local (Campus-Only) & Student-Centric</span></div>
+                    <div class="p-4 bg-slate-50 text-center">Broad & General</div>
+
+                    <div class="p-4 bg-white text-left">Primary Goal</div>
+                    <div class="p-4 bg-white text-center"><span class="font-semibold text-indigo-700">Community Trust & Sustainability</span></div>
+                    <div class="p-4 bg-white text-center">Transaction Volume</div>
+
+                    <div class="p-4 bg-slate-50 text-left">Logistics</div>
+                    <div class="p-4 bg-slate-50 text-center"><span class="font-semibold text-indigo-700">Highly Convenient On-Campus Exchange</span></div>
+                    <div class="p-4 bg-slate-50 text-center">Variable / Often Inconvenient</div>
+
+                    <div class="p-4 bg-white text-left">Item Relevance</div>
+                    <div class="p-4 bg-white text-center"><span class="font-semibold text-indigo-700">Tailored for Academic & Campus Needs</span></div>
+                    <div class="p-4 bg-white text-center">Mixed / Less Specific</div>
+                </div>
+            </section>
+
+            <!-- Monetization Section -->
+            <section id="monetization" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Sustainable Revenue Model</h2>
+                <p class="text-lg text-slate-600 mb-8">Our monetization strategy is designed for long-term sustainability and growth, ensuring UniFlow can continue to provide value to the student community while generating revenue.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-6">
+                        <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg text-slate-800">💲 Small Transaction Fees</h4>
+                            <p class="text-base text-slate-600">This is our primary revenue driver. A modest percentage (e.g., 5-10%) will be charged on successful sales or rental transactions. This model ensures our revenue scales directly with the value we provide to our users, making it fair and sustainable.</p>
+                        </div>
+                        <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg text-slate-800">📢 Targeted Advertising</h4>
+                            <p class="text-base text-slate-600">We will offer opportunities for local businesses (e.g., cafes, bookstores, print shops near campus) to display highly targeted advertisements within the app. Additionally, students can pay a small fee to promote their own listings for increased visibility.</p>
+                        </div>
+                         <div class="p-4 bg-white border border-slate-200 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg text-slate-800">💎 Premium Features (Future)</h4>
+                            <p class="text-base text-slate-600">In future phases, we plan to introduce optional premium features for a subscription fee. These could include early access to new listings, unlimited listing boosts, or enhanced analytics for power sellers, providing additional, stable income streams.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="chart-container">
+                            <canvas id="monetizationChart"></canvas>
+                        </div>
+                         <p class="text-center text-sm text-slate-500 mt-2">Projected Early-Stage Revenue Mix</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Future Plans / Roadmap Section -->
+            <section id="roadmap" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Our Roadmap to Impact</h2>
+                <p class="text-lg text-slate-600 mb-12">We have a clear, phased plan for UniFlow's growth, from initial campus launch to nationwide expansion and continuous feature enhancement. Each phase builds upon the last to maximize impact and user value.</p>
+                <div class="relative pl-4 border-l-4 border-indigo-200">
+                    <div class="timeline-item mb-12 cursor-pointer">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-2">Phase 1: Campus Launch & Optimization (Short-Term)</h3>
+                        <p class="text-slate-600">Our initial focus is on a single university campus as a pilot. This phase involves aggressive on-campus marketing, partnerships with student organizations, and continuous gathering of user feedback to refine the app's features, usability, and address any initial bugs. The goal is to build strong initial traction and a significant percentage of the student body as active users.</p>
+                    </div>
+                    <div class="timeline-item mb-12 cursor-pointer">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-2">Phase 2: Multi-Campus Expansion (Mid-Term)</h3>
+                        <p class="text-slate-600">Once successful on our pilot campus, we will develop a scalable model for launching UniFlow on additional university campuses across Indonesia. This will involve targeted rollouts to major university cities and exploring official collaborations with university administrations to promote the app and potentially integrate with student services.</p>
+                    </div>
+                    <div class="timeline-item cursor-pointer">
+                        <h3 class="text-2xl font-bold text-indigo-700 mb-2">Phase 3: Feature & Ecosystem Growth (Long-Term)</h3>
+                        <p class="text-slate-600">The long-term vision includes expanding the "services" category to offer more structured offerings like tutoring networks or student job postings. We also plan to implement features for group buying/selling and deeper integrations with campus life, such as event promotions or collaborations with lost and found departments. This phase aims to make UniFlow an indispensable part of the student experience nationwide.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Call to Action Section -->
+            <section id="call-to-action" class="content-section">
+                <h2 class="text-4xl lg:text-5xl font-extrabold text-slate-900 mb-2">Join Us: Empowering Campus Life!</h2>
+                <p class="text-lg text-slate-600 mb-8">UniFlow is more than just an app; it's a movement towards a more affordable, sustainable, and connected future for students. We are poised to transform the university experience across Indonesia.</p>
+                <div class="p-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-2xl text-white shadow-2xl">
+                    <h3 class="text-3xl font-bold mb-4">Invest in the Future of Student Commerce</h3>
+                    <p class="text-xl opacity-90 mb-6 max-w-3xl mx-auto">
+                        Your support will enable us to accelerate development, expand to more campuses, and bring UniFlow's benefits to millions of students nationwide.
+                        We are seeking partners who share our vision for a smarter, more sustainable campus ecosystem.
+                    </p>
+                    <div class="text-center" style="margin-top: 50px;">
+                        <p class="text-2xl font-semibold mb-2">Ready to make an impact?</p>
+                        <p class="text-xl mb-4">Contact us to learn more about this exciting opportunity.</p>
+                        <p class="text-xl font-bold">Email: <a href="mailto:bagas.a.s.nugroho@gmail.com" class="underline hover:text-indigo-200">bagas.a.s.nugroho@gmail.com</a></p>
+                        <p class="text-xl font-bold">Phone: <a href="tel:+6287884811449" class="underline hover:text-indigo-200">+62 878 8481 1449</a></p>
+                    </div>
+                </div>
+                <p class="mt-10 text-sm text-slate-500">
+                    (This is a conceptual project for English II. For official inquiries, please use the provided contact details.)
+                </p>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sections = document.querySelectorAll('.content-section');
+            const navLinks = document.querySelectorAll('#desktop-nav .nav-item');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            function showSection(hash) {
+                const targetHash = hash || '#introduction';
+                
+                sections.forEach(section => {
+                    if ('#' + section.id === targetHash) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === targetHash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+                
+                mobileNav.value = targetHash.substring(1);
+                
+                if (targetHash === '#monetization') {
+                    renderMonetizationChart();
+                }
+            }
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetHash = link.getAttribute('href');
+                    history.pushState(null, null, targetHash);
+                    showSection(targetHash);
+                });
+            });
+            
+            mobileNav.addEventListener('change', (e) => {
+                const targetHash = '#' + e.target.value;
+                history.pushState(null, null, targetHash);
+                showSection(targetHash);
+            });
+
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash);
+            });
+
+            showSection(window.location.hash);
+
+            const featureTabs = document.querySelectorAll('.feature-tab');
+            const featureContents = document.querySelectorAll('.feature-content');
+
+            featureTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.dataset.tab;
+                    
+                    featureTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    featureContents.forEach(content => {
+                        if (content.id === target) {
+                            content.classList.remove('hidden');
+                             content.classList.add('active');
+                        } else {
+                            content.classList.add('hidden');
+                            content.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            let monetizationChartInstance = null;
+            function renderMonetizationChart() {
+                const ctx = document.getElementById('monetizationChart');
+                if (!ctx) return;
+                
+                if (monetizationChartInstance) {
+                    monetizationChartInstance.destroy();
+                }
+
+                monetizationChartInstance = new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Transaction Fees', 'Advertising', 'Premium Features'],
+                        datasets: [{
+                            label: 'Revenue Mix',
+                            data: [65, 25, 10],
+                            backgroundColor: [
+                                'rgb(79, 70, 229)',    /* indigo-600 */
+                                'rgb(129, 140, 248)',  /* indigo-400 */
+                                'rgb(199, 210, 254)'   /* indigo-200 */
+                            ],
+                            borderColor: '#FDFBF7',
+                            borderWidth: 4,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '60%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        family: "'Inter', sans-serif",
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
